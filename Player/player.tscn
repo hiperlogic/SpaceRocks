@@ -7,9 +7,14 @@
 radius = 32.0
 
 [node name="Player" type="RigidBody2D"]
+linear_damp = 1.0
+angular_damp = 5.0
 script = ExtResource( 2 )
+engine_power = 500
+spin_power = 150000
 
 [node name="Sprite" type="Sprite" parent="."]
+rotation = 1.5708
 scale = Vector2( 0.5, 0.5 )
 texture = ExtResource( 1 )
 
