@@ -3,20 +3,21 @@
 importer="texture"
 type="StreamTexture"
 path="res://.import/explosion 3.png-8ad15053dfba84410ef972dbd96187cb.stex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/explosion 3.png"
-source_md5="ba7fd56cb356b7af7925ef1d658e1e3c"
-
 dest_files=[ "res://.import/explosion 3.png-8ad15053dfba84410ef972dbd96187cb.stex" ]
-dest_md5="eb6680c15fbf8c6b5987dac5bb06097d"
 
 [params]
 
 compress/mode=0
 compress/lossy_quality=0.7
 compress/hdr_mode=0
+compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
 flags/filter=false
@@ -26,6 +27,8 @@ flags/srgb=2
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/HDR_as_SRGB=false
+process/invert_color=false
+process/normal_map_invert_y=false
 stream=false
 size_limit=0
 detect_3d=false
