@@ -1,10 +1,20 @@
 extends RigidBody2D
 
+signal shoot
+signal lives_changed
+
+var lives = 0 setget set_lives
+
 enum States {INIT, ALIVE, INVULNERABLE, DEAD}
 var state = null
 
 export (int) var engine_power
 export (int) var spin_power
+
+export (PackedScene) var Bullet
+export (float) var fire_rate
+
+var can_shoot = true
 
 var thrust = Vector2()
 var rotation_dir = 0
@@ -15,6 +25,7 @@ var screensize = Vector2()
 func _ready():
 	change_state(States.ALIVE)
 	screensize = get_viewport().get_visible_rect().size
+	$GunTimer.wait_time = fire_rate
 
 func change_state(new_state):
 	### TODO: Should check if the current to new state transition is ok
@@ -46,6 +57,15 @@ func get_input():
 		rotation_dir+=.1
 	if Input.is_action_pressed("rotate_left"):
 		rotation_dir -=.1
+	if Input.is_action_pressed("shoot") and can_shoot:
+		shoot()
+		
+func shoot():
+	if state == States.INVULNERABLE:
+		return
+	emit_signal("shoot", Bullet, $Muzzle.global_position, rotation)
+	can_shoot = false
+	$GunTimer.start()
 		
 func _physics_process(delta):
 	set_applied_force(thrust.rotated(rotation))
@@ -66,3 +86,15 @@ func _integrate_forces(physics_state):
 		xform.origin.y = screensize.y
 	physics_state.set_transform(xform)
 
+func set_lives(value):
+	lives = value
+	emit_signal("lives_changed", lives)
+
+func start():
+	$Sprite.show()
+	self.lives = 3
+	change_state(States.ALIVE)
+	
+func _on_GunTimer_timeout():
+	can_shoot = true
+	pass # Replace with function body.
