@@ -24,7 +24,7 @@ func update_lives(value):
 
 func game_over():
 	show_message("Game Over")
-	yield($MessageLabel, "timeout")
+	yield($MessageTimer, "timeout")
 	$StartButton.show()
 
 # Called when the node enters the scene tree for the first time.

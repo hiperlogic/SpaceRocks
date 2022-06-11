@@ -2,6 +2,7 @@ extends RigidBody2D
 
 signal shoot
 signal lives_changed
+signal dead
 
 var lives = 0 setget set_lives
 
@@ -33,12 +34,20 @@ func change_state(new_state):
 	match new_state:
 		States.INIT:
 			$CollisionShape2D.disabled = true
+			$Sprite.modulate.a = 0.5
 		States.ALIVE:
 			$CollisionShape2D.disabled = false
+			$Sprite.modulate.a = 1
 		States.INVULNERABLE:
 			$CollisionShape2D.disabled = true
+			$Sprite.modulate.a = 0.5
+			$InvulnerabilityTimer.start()
 		States.DEAD:
 			$CollisionShape2D.disabled = true
+			$Sprite.hide()
+			linear_velocity = Vector2()
+			$EngineSound.stop()
+			emit_signal("dead")
 	state = new_state
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -47,11 +56,17 @@ func _process(delta):
 #	pass
 
 func get_input():
+	$Exhaust.emitting = false
 	thrust = Vector2()
 	if state in [States.DEAD, States.INIT]:
 		return
 	if Input.is_action_pressed("thrust"):
+		$Exhaust.emitting = true
 		thrust = Vector2(engine_power, 0)
+		if not $EngineSound.playing:
+			$EngineSound.play()
+	else:
+		$EngineSound.stop()
 	rotation_dir=0
 	if Input.is_action_pressed("rotate_right"):
 		rotation_dir+=.1
@@ -66,6 +81,7 @@ func shoot():
 	emit_signal("shoot", Bullet, $Muzzle.global_position, rotation)
 	can_shoot = false
 	$GunTimer.start()
+	$LaserSound.play()
 		
 func _physics_process(delta):
 	set_applied_force(thrust.rotated(rotation))
@@ -97,4 +113,28 @@ func start():
 	
 func _on_GunTimer_timeout():
 	can_shoot = true
+	pass # Replace with function body.
+
+
+func _on_InvulnerabilityTimer_timeout():
+	change_state(States.ALIVE)
+	pass # Replace with function body.
+
+
+func _on_AnimationPlayer_animation_finished(anim_name):
+	$Explosion.hide()
+	pass # Replace with function body.
+
+
+func _on_Player_body_entered(body):
+	if body.is_in_group('rocks'):
+		body.explode()
+		$Explosion.show()
+		$Explosion/AnimationPlayer.play("explosion")
+		if(self.state != States.INVULNERABLE):
+			self.lives -= 1
+		if lives <= 0:
+			change_state(States.DEAD)
+		else:
+			change_state(States.INVULNERABLE)
 	pass # Replace with function body.
