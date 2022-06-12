@@ -92,6 +92,8 @@ func _on_Player_shoot(bullet, pos, dir):
 	add_child(b)
 	
 func _on_Rock_exploded(size, radius, pos, vel):
+	score += size*10
+	$HUD.update_score(score)
 	$ExplodeSound.play()
 	if size<=1:
 		return

@@ -3,6 +3,7 @@ extends RigidBody2D
 signal shoot
 signal lives_changed
 signal dead
+signal shield_changed
 
 var lives = 0 setget set_lives
 
@@ -11,6 +12,10 @@ var state = null
 
 export (int) var engine_power
 export (int) var spin_power
+
+export (int) var max_shield
+export (float) var shield_regen
+var shield = 0 setget set_shield
 
 export (PackedScene) var Bullet
 export (float) var fire_rate
@@ -53,6 +58,7 @@ func change_state(new_state):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	get_input()
+	self.shield += shield_regen * delta
 #	pass
 
 func get_input():
@@ -104,12 +110,15 @@ func _integrate_forces(physics_state):
 
 func set_lives(value):
 	lives = value
+	self.shield = max_shield
 	emit_signal("lives_changed", lives)
 
 func start():
 	$Sprite.show()
 	self.lives = 3
+	self.shield = max_shield
 	change_state(States.ALIVE)
+	
 	
 func _on_GunTimer_timeout():
 	can_shoot = true
@@ -131,10 +140,17 @@ func _on_Player_body_entered(body):
 		body.explode()
 		$Explosion.show()
 		$Explosion/AnimationPlayer.play("explosion")
-		if(self.state != States.INVULNERABLE):
-			self.lives -= 1
+		self.shield -= body.size * 25
 		if lives <= 0:
 			change_state(States.DEAD)
 		else:
 			change_state(States.INVULNERABLE)
 	pass # Replace with function body.
+
+func set_shield(value):
+	if value > max_shield:
+		value = max_shield
+	shield = value
+	emit_signal("shield_changed", shield/max_shield)
+	if shield<=0:
+		self.lives -= 1

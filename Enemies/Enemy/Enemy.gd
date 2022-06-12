@@ -69,5 +69,5 @@ func explode():
 
 func _on_Enemy_body_entered(body):
 	if body.name == 'Player':
-		pass
+		body.shield -= 50
 	explode()

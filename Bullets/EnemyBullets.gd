@@ -22,6 +22,8 @@ func _process(delta):
 
 
 func _on_EnemyBullet_body_entered(body):
+	if body.name == 'Player':
+		body.shield -= 15
 	queue_free()
 	pass # Replace with function body.
 
